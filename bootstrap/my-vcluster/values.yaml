@@ -1,0 +1,9 @@
+---
+syncer:
+  extraArgs:
+    - --tls-san=my-vcluster.loft.local
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  host: my-vcluster.loft.local

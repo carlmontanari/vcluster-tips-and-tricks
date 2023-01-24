@@ -1,0 +1,91 @@
+---
+plugin:
+  prefer-parent-resources:
+    image: ghcr.io/carlmontanari/vcluster-plugin/prefer-parent-resources
+
+sync:
+  ingresses:
+    enabled: true
+
+init:
+  manifests: |-
+    ---
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: demo
+
+    ---
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: my-secret
+      namespace: demo
+    type: Opaque
+    data:
+      data: dGFjb2NhdA==
+
+    ---
+    kind: Deployment
+    apiVersion: apps/v1
+    metadata:
+      name: demo-app
+      namespace: demo
+      labels:
+        app: demo
+    spec:
+      replicas: 1
+      selector:
+        matchLabels:
+          app: demo
+      template:
+        metadata:
+          labels:
+            app: demo
+        spec:
+          containers:
+            - name: demo-app
+              image: ghcr.io/carlmontanari/echo-env
+              args:
+                - "-env=SECRET"
+              env:
+                - name: SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: my-secret
+                      key: data
+                      optional: false
+
+    ---
+    kind: Service
+    apiVersion: v1
+    metadata:
+      name: demo-service
+      namespace: demo
+    spec:
+      selector:
+        app: demo
+      ports:
+        - port: 5678 # Default port for image
+
+    ---
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
+    metadata:
+      name: demo-ingress
+      namespace: demo
+      annotations:
+        ingress.kubernetes.io/rewrite-target: /
+    spec:
+      ingressClassName: nginx
+      rules:
+      - host: "app.loft.local"
+        http:
+          paths:
+            - path: /demo-app
+              pathType: Prefix
+              backend:
+                service:
+                  name: demo-service
+                  port:
+                    number: 5678

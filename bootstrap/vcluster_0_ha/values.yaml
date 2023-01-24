@@ -1,0 +1,49 @@
+---
+enableHA: true
+
+syncer:
+  replicas: 3
+  extraArgs:
+    - --tls-san=vcluster-0-ha.loft.local
+
+etcd:
+  replicas: 3
+
+controller:
+  replicas: 3
+
+api:
+  replicas: 3
+
+coredns:
+  replicas: 3
+
+sync:
+  nodes:
+    enabled: true
+    syncAllNodes: true
+  ingresses:
+    enabled: true
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  host: vcluster-0-ha.loft.local
+
+init:
+  manifests: |-
+    ---
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+      name: my-vcluster-2
+
+    ---
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: my-secret
+      namespace: my-vcluster-2
+    type: Opaque
+    data:
+      data: cmFjZWNhcg==
