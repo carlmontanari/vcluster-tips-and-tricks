@@ -20,8 +20,6 @@ KUBECONFIG=kubeconfigs/vcluster-1 kubectl get pods -A
 ## for the demo, so we'll also set up an ingress; this is something you would probably need to do
 ## in most cases where you are not running kind/docker-desktop/minikube anyway!
 p "vcluster create my-vcluster \\
-	--namespace my-vcluster \\
-	--create-namespace \\
 	--connect=false \\
 	-f bootstrap/my-vcluster/values.yaml"
 KUBECONFIG=kubeconfigs/vcluster-1 vcluster create my-vcluster \

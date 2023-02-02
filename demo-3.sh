@@ -33,7 +33,6 @@ doUntil "kubectl get pods -n my-vcluster-2" "KUBECONFIG=kubeconfigs/vcluster-0-h
 p "kubectl get svc -n my-vcluster-2"
 KUBECONFIG=kubeconfigs/vcluster-0-ha kubectl get svc -n my-vcluster-2
 
-p "kubectl get ingress -n my-vcluster-2"
 doUntil "kubectl get ingress -n my-vcluster-2" "KUBECONFIG=kubeconfigs/vcluster-0-ha kubectl get ingress -n my-vcluster-2" 'app.loft.local\s+\d+\.\d+\.\d+\.\d+'
 
 ## we can now confirm that our app is up and working -- its just a dumb app that returns some
@@ -46,8 +45,7 @@ pe "curl -k https://app.loft.local:8443/demo-app"
 ## fun fact, we can also directly execute commands in the vcluster like this without having
 ## to have an ingress/node port/port-forwarding -- can be quite handy!
 p "vcluster connect my-vcluster-2 -- kubectl get deployments -n demo demo-app -o yaml | yq '.spec.template.spec.containers[0]'"
-KUBECONFIG=kubeconfigs/vcluster-0-ha vcluster connect my-vcluster-2 -- \
-  kubectl get deployments -n demo demo-app -o yaml | yq '.spec.template.spec.containers[0]'
+KUBECONFIG=kubeconfigs/vcluster-0-ha vcluster connect my-vcluster-2 -- kubectl get deployments -n demo demo-app -o yaml | yq '.spec.template.spec.containers[0]'
 
 ## ok we see a secret is mounted, lets check out that secret too... but hey, what gives?! shouldn't this say racecar?
 p "vcluster connect my-vcluster-2 -- kubectl get secrets -n demo my-secret -o jsonpath='{.data.data}' | base64 -d"
